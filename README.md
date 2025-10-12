@@ -1,6 +1,6 @@
 # Kahoot Finder
 
-A simple Python script inspired by [kahoot-god](https://github.com/The-CodingSloth/kahoot-god).  
+A simple Python script inspired by [kahoot-god](https://github.com/The-CodingSloth/kahoot-god).  by @The-CodingSloth
 This version does **not use AI** — it asks the user for the Kahoot name and the correct answers for the first 5 questions, then searches for the correct Kahoot automatically.
 
 ---
