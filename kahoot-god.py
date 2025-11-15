@@ -4,14 +4,14 @@ import time
 import gc
 import argparse
 import urllib3
+import os
+
 
 urllib3.disable_warnings()
-
 gc.disable()
 parser = argparse.ArgumentParser()
-parser.add_argument(
-    "-v", "--verbose", action="store_true", help="Abilita il logging verboso"
-)
+parser.add_argument("-v", "--verbose", action="store_true", help="Abilita il logging verboso")
+parser.add_argument("-d","--debos", action="store_true", help="Don't use this i made it so i can quickly find kahoot from one of my profssors")
 args = parser.parse_args()
 search_limit = 100
 right_answers = []
@@ -21,16 +21,15 @@ count = 0
 question_count = 0
 content_url = "https://create.kahoot.it/rest/kahoots/"
 session = requests.Session()
-session.get("https://create.kahoot.it/", timeout=0.7)
+session.get("https://create.kahoot.it/", timeout=0.4)
 print("enter kahoot name:")
 kahoot_name = input()
-first_right_answer = int(input("Answer for question 1?"))
-second_right_answer = int(input("Answer for question 2?"))
-third_right_answer = int(input("Answer for question 3?"))
-fourth_right_answer = int(input("Answer for question 4?"))
-fifth_right_answer = int(input("Answer for question 5?"))
-cursor = 0
+ProvidedRightAnswers = []
+if not args.debos:
+    for i in range(5):
+        ProvidedRightAnswers.append(input(f"what's the right answer to question number {i}?"))
 
+cursor = 0
 
 def kahoot_found(Answers, kahoot_name):
     print("\n✅ quiz found")
@@ -38,20 +37,22 @@ def kahoot_found(Answers, kahoot_name):
     print("answers:")
     for i in range(len(Answers)):
         print(f"answer {i+1}: {Answers[i]}")
-    session.close()
     quit()
-
-
 try:
     start_time = time.time()
+
     while True:
-        search_url = f"https://create.kahoot.it/rest/kahoots/?query={kahoot_name.replace(' ', '%20')}&cursor={cursor}&limit={search_limit}&orderBy=relevance"
-        # print(f"\n🔎 Searching with cursor={cursor}...")
-        response = session.get(search_url, timeout=2)
-        # print("Status Code:", response.status_code)
+        if args.debos:
+            search_url = f"https://kahoot.it/rest/kahoots/?query=debos73&cursor={cursor}&limit={search_limit}&creator=debos73"
+        else:
+            search_url = f"https://kahoot.it/rest/kahoots/?query={kahoot_name.replace(' ', '%20')}&cursor={cursor}&limit={search_limit}&orderBy=relevance"
+        #print(f"\n🔎 Searching with cursor={cursor}...")
+        response = session.get(search_url, timeout=5, verify=False)
+        
+        #print("Status Code:", response.status_code)
         dati = response.json()
         if not dati.get("entities"):
-            print(f"❌ No results at cursor={cursor}, stopping search.")
+            #print(f"❌ No results at cursor={cursor}, stopping search.")
             break
 
         for entity in dati.get("entities", []):
@@ -65,20 +66,16 @@ try:
             content_uuid = f"{content_url}{uuid}"
 
             try:
-                content = session.get(content_uuid, timeout=(1, 1))
+                content = session.get(content_uuid, timeout=(1, 3))
                 content.raise_for_status()
                 content = content.json()
                 req_end = time.time()
                 req_time = req_end - req_start
                 total_time = req_end - start_time
-                print(
-                    f"Kahoot examined: {count} | request time: {req_time:.2f}s | total time: {total_time:.2f}s",
-                    end="\r",
-                    flush=True,
-                )
+                print(f"kahoots checked: {count}", end="\r", flush=True)
 
             except Exception as e:
-                print(f"⚠️ errore su {uuid}: {e}")
+                #print(f"⚠️ errore su {uuid}: {e}")
                 continue
 
             current_kahoot_name = content.get("title", "Unknown")
@@ -92,45 +89,38 @@ try:
                 if q_type in ("content", "survey"):
                     continue
 
-                elif q_type in ("quiz", "open_ended"):
+                elif q_type == "quiz":
                     for f, choice in enumerate(question.get("choices", [])):
                         if choice.get("correct"):
-                            right_answers.append(f + 1)
+                            right_answers.append(str(f + 1))
+                            
+                elif q_type == "open_ended":
+                    right_answers.append(question.get("choices")[0]["answer"])
 
                 elif q_type == "slider":
-                    right_answers.append(question.get("choiceRange", {}).get("correct"))
+                    right_answers.append(str(question.get("choiceRange", {}).get("correct")))
 
                 elif q_type == "multiple_select_quiz":
-                    aux_array_fake = " AND ".join(
-                        c.get("answer", "")
-                        for c in question.get("choices", [])
-                        if c.get("correct")
+                    aux_array_fake = str(" AND ".join(
+                        c.get("answer", "") for c in question.get("choices", []) if c.get("correct"))
                     )
                     right_answers.append(aux_array_fake)
 
                 elif q_type == "jumble":
-                    aux_array_fake = " ".join(
-                        c.get("answer", "")
-                        for c in question.get("choices", [])
-                        if c.get("correct")
+                    aux_array_fake = str("|".join(
+                        c.get("answer", "") for c in question.get("choices", []) if (c.get("correct")) or not ((c.get("correct"))))
                     )
                     right_answers.append(aux_array_fake)
-
+            #print(f"{current_kahoot_name} | {uuid}", end="\n")
             if len(right_answers) >= 5:
-                if (
-                    right_answers[0] == first_right_answer
-                    and right_answers[1] == second_right_answer
-                    and right_answers[2] == third_right_answer
-                    and right_answers[3] == fourth_right_answer
-                    and right_answers[4] == fifth_right_answer
-                ):
+                if not args.debos:
+                    if right_answers[:5] == ProvidedRightAnswers[:5] :
+                        kahoot_found(right_answers, current_kahoot_name)
+                elif kahoot_name.lower() in current_kahoot_name.lower():
                     kahoot_found(right_answers, current_kahoot_name)
-
         # ✅ passa al batch successivo se non ha trovato niente
         cursor += 100
-        # time.sleep(0.001)
+        #time.sleep(0.3)
 except Exception as e:
-    print(f"❌ error: {e}\ncontinuing anyway")
-finally:
-    session.close()
-    print("session closed")
+    print(f"{e}")
+    quit()
