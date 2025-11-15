@@ -10,7 +10,6 @@ import os
 urllib3.disable_warnings()
 gc.disable()
 parser = argparse.ArgumentParser()
-parser.add_argument("-v", "--verbose", action="store_true", help="Abilita il logging verboso")
 parser.add_argument("-d","--debos", action="store_true", help="Don't use this i made it so i can quickly find kahoot from one of my profssors")
 args = parser.parse_args()
 search_limit = 100
@@ -27,7 +26,7 @@ kahoot_name = input()
 ProvidedRightAnswers = []
 if not args.debos:
     for i in range(5):
-        ProvidedRightAnswers.append(input(f"what's the right answer to question number {i}?"))
+        ProvidedRightAnswers.append(input(f"what's the right answer to question number {i+1}?"))
 
 cursor = 0
 
@@ -123,4 +122,5 @@ try:
         #time.sleep(0.3)
 except Exception as e:
     print(f"{e}")
+
     quit()
