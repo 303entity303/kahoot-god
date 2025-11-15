@@ -29,12 +29,12 @@ The script will then search for the Kahoot that matches your input.<br/>
 ```
 $ python kahoot_god.py
 enter kahoot name: Science Quiz
-Answer for question 1: 3
-Answer for question 2: 1
-Answer for question 3: 2
-Answer for question 4: 4
-Answer for question 5: 2
-Searching for the correct Kahoot...
+what's the right answer to question number 1?: 3
+what's the right answer to question number 2?: 1
+what's the right answer to question number 3?: 2
+what's the right answer to question number 4?: 4
+what's the right answer to question number 5?: 2
+kahoots checked: xx
 quiz name: Science Quiz 2025 Edition
 answers:
 answer 1: 3
