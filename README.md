@@ -15,7 +15,7 @@ This version does **not use AI** — it asks the user for the Kahoot name and th
 ## How to Use
 
 1. Run the script with `python kahoot_god.py`
-2. Enter the Kahoot name (first 2-3 words are enough) and press Enter.
+2. Enter the Kahoot name (first 2-3 words are enough, more = faster but more chance of typing incorrectly) and press Enter.
 3. Enter the correct answers for the first 5 questions, one at a time.<br/>
 For example, if the answers are 1 2 3 4 1:
 ```
