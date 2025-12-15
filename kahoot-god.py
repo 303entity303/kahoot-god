@@ -6,6 +6,7 @@ import argparse
 import urllib3
 import os
 
+__VERSION__ = "1.1.0"
 
 urllib3.disable_warnings()
 gc.disable()
@@ -124,3 +125,4 @@ except Exception as e:
     print(f"{e}")
 
     quit()
+
