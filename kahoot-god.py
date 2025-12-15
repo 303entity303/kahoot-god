@@ -9,7 +9,7 @@ import os
 check_ver_url=("https://github.com/303entity303/kahoot-god/"
     "releases/latest/download/kahoot-god.py"
 )
-__VERSION__ = "1.1.0"
+__VERSION__ = "1.2.1"
 def check_version():
     try:
         response = requests.get(check_ver_url, timeout=3)
@@ -150,5 +150,6 @@ try:
         #time.sleep(0.3)
 except Exception as e:
     print(f"{e}")
+
 
     quit()
