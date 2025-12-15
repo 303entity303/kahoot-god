@@ -2,12 +2,39 @@ import requests
 import json
 import time
 import gc
+import subprocess
 import argparse
 import urllib3
 import os
-
-__VERSION__ = "1.2.0"
-
+check_ver_url=("https://github.com/303entity303/kahoot-god/"
+    "releases/latest/download/kahoot-god.py"
+)
+__VERSION__ = "1.1.0"
+def check_version():
+    try:
+        response = requests.get(check_ver_url, timeout=3)
+        print(response.status_code)
+        if response.status_code == 200:
+            for line in response.text.splitlines():
+                if line.startswith("__VERSION__"):
+                    print(line)
+                    latest_version = line.split('=')[1].strip().strip('"').strip("'")
+                    if latest_version != __VERSION__:
+                        print(f"⚠️ A new version ({latest_version}) is available. You are using version {__VERSION__}. Please update.")
+                        update_choice = input("Do you want to update now? (y/n):")
+                        print(f"test {update_choice.strip().lower()}")
+                        
+                        if update_choice.strip().lower() == 'y':
+                            print("Updating...")
+                            python_executable = os.sys.executable
+                            script_path = "updater.py"
+                            subprocess.Popen([python_executable, script_path])
+                            print("Updater started. Exiting current instance.")
+                            os._exit(0)
+                    return
+    except:
+        pass
+check_version()
 urllib3.disable_warnings()
 gc.disable()
 parser = argparse.ArgumentParser()
@@ -125,5 +152,3 @@ except Exception as e:
     print(f"{e}")
 
     quit()
-
-
